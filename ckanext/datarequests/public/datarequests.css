@@ -42,7 +42,6 @@
 
 #datarequest_vote_section {
   width: 5%;
-  float: right;
 }
 
 .vote-section {
@@ -62,6 +61,7 @@
 
 #datarequest_additional_info {
   width: 90%;
+  float: right;
 }
 
 .dataset-content {
