@@ -54,6 +54,8 @@
 
   <h1 class="{% block page_heading_class %}page-heading{% endblock %}">{% block page_heading %}{{ c.datarequest.get('title') }}{% endblock %}</h1>
 
+  <hr class="title-separator">
+
   {% block datarequest_description %}
     {% if c.datarequest.get('description') %}
       <div class="notes embedded-content">
