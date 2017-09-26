@@ -18,6 +18,8 @@
 # along with CKAN Data Requests Extension. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import json
+import requests
 
 import ckan.lib.base as base
 import ckan.model as model
@@ -38,6 +40,8 @@ _link = re.compile(r'(?:(https?://)|(www\.))(\S+\b/?)([!"#$%&\'()*+,\-./:;<=>?@[
 log = logging.getLogger(__name__)
 tk = plugins.toolkit
 c = tk.c
+
+
 
 
 def _get_errors_summary(errors):
@@ -197,8 +201,18 @@ class DataRequestsUI(base.BaseController):
                         body = base.render_jinja2('emails/notify_user_body.txt',
                                                   extra_vars)
                         mailer.mail_user(user_data, subject, body)
-                base.redirect(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI',
-                                              action='show', id=result['id']))
+
+                    slack_data = {'text': body, 'username': "monkey-bot"}
+                    response = requests.post(
+                        webhook_url, data=json.dumps(slack_data),
+                        headers={'Content-Type': 'application/json'}
+                    )
+                    if response.status_code != 200:
+                        raise ValueError(
+                            'Request to slack returned an error %s, the response is:\n%s'
+                            % (response.status_code, response.text)
+                        )
+                tk.redirect_to(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='show', id=result['id']))
 
             except tk.ValidationError as e:
                 log.warn(e)
@@ -391,6 +405,8 @@ class DataRequestsUI(base.BaseController):
                         flash_message = tk._('Comment has been updated')
 
                     helpers.flash_notice(flash_message)
+                    base.redirect(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI',
+                                                  action='comment', id=id))
 
                 except tk.NotAuthorized as e:
                     log.warn(e)
