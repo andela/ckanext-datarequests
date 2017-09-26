@@ -177,6 +177,7 @@ class DataRequestsUI(base.BaseController):
             try:
                 result = tk.get_action(action)(context, data_dict)
                 if result['id']:
+                    # Org members are notified via email when data request is created
                     datarequest_url = config.get('ckan.site_url') + \
                                       '/datarequest/' + result['id']
                     users = result['organization']['users']
@@ -191,6 +192,7 @@ class DataRequestsUI(base.BaseController):
                                                  extra_vars)
 
                     for user in users:
+                        # Retrieve user data
                         user_data = model.User.get(user['id'])
                         extra_vars['user_fullname'] = user_data.fullname
                         body = base.render_jinja2('emails/notify_user_body.txt',
