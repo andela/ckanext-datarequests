@@ -196,8 +196,7 @@ class DataRequestsUI(base.BaseController):
                         body = base.render_jinja2('emails/notify_user_body.txt',
                                                   extra_vars)
                         mailer.mail_user(user_data, subject, body)
-                base.redirect(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI',
-                                              action='show', id=result['id']))
+                tk.redirect_to(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='show', id=result['id']))
 
             except tk.ValidationError as e:
                 log.warn(e)
@@ -281,7 +280,7 @@ class DataRequestsUI(base.BaseController):
             tk.check_access(constants.DATAREQUEST_DELETE, context, data_dict)
             datarequest = tk.get_action(constants.DATAREQUEST_DELETE)(context, data_dict)
             helpers.flash_notice(tk._('Data Request %s has been deleted') % datarequest.get('title', ''))
-            base.redirect(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='index'))
+            tk.redirect_to(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='index'))
         except tk.ObjectNotFound as e:
             log.warn(e)
             tk.abort(404, tk._('Data Request %s not found') % id)
@@ -342,8 +341,7 @@ class DataRequestsUI(base.BaseController):
                 data_dict['id'] = id
 
                 tk.get_action(constants.DATAREQUEST_CLOSE)(context, data_dict)
-                base.redirect(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI',
-                                              action='show', id=data_dict['id']))
+                tk.redirect_to(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='show', id=data_dict['id']))
             else:   # GET
                 return _return_page()
 
@@ -434,8 +432,7 @@ class DataRequestsUI(base.BaseController):
             tk.check_access(constants.DATAREQUEST_COMMENT_DELETE, context, data_dict)
             tk.get_action(constants.DATAREQUEST_COMMENT_DELETE)(context, data_dict)
             helpers.flash_notice(tk._('Comment has been deleted'))
-            base.redirect(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI',
-                                          action='comment', id=datarequest_id))
+            tk.redirect_to(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='comment', id=datarequest_id))
         except tk.ObjectNotFound as e:
             log.warn(e)
             tk.abort(404, tk._('Comment %s not found') % comment_id)

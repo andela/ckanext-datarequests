@@ -5,11 +5,9 @@
     <div class="module-content">
       {% block page_primary_action %}
         {% if h.check_access('datarequest_create') %}
-      <div class="page_primary_action">
-        <small>Search through existing requests before adding a new one.</small>
-        <br>
-        {% link_for _('Add Data Request'), controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='new', class_='btn btn-primary', icon='plus-sign-alt' %}
-        </div>
+          <div class="page_primary_action">
+            {% link_for _('Add Data Request'), controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='new', class_='btn btn-primary', icon=h.get_plus_icon() %}
+          </div>
         {% endif %}
         {% snippet 'snippets/custom_search_form.html', query=c.q, fields=(('organization', c.organization), ('state', c.state)), sorting=c.filters, sorting_selected=c.sort, placeholder=_('Search Data Requests...'), no_bottom_border=true, count=c.datarequest_count, no_title=True %}
         {{ h.snippet('datarequests/snippets/datarequest_list.html', datarequest_count=c.datarequest_count, datarequests=c.datarequests, page=c.page, q=c.q)}}
