@@ -45,7 +45,6 @@
 }
 
 .vote-section {
-  padding: 5px;
   display:inline-block;
 }
 
@@ -65,7 +64,16 @@
 }
 
 .dataset-content {
-  width: 95%;
+  width: 90%;
+  float: right;
+}
+
+.additional-info-container {
+  padding-bottom: 40px;
+}
+
+.title-separator {
+  border-color: #cccccc;
 }
 
 /*****************************************
