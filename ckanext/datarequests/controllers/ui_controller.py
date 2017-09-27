@@ -42,8 +42,6 @@ tk = plugins.toolkit
 c = tk.c
 
 
-
-
 def _get_errors_summary(errors):
     errors_summary = {}
 
@@ -79,6 +77,18 @@ def user_datarequest_url(params, id):
     url = helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI',
                           action='user_datarequests', id=id)
     return url_with_params(url, params)
+
+
+def send_slack_message(slack_data):
+    response = requests.post(
+        config.get('slack.webhook_url'), data=json.dumps(slack_data),
+        headers={'Content-Type': 'application/json'}
+    )
+    if response.status_code != 200:
+        raise ValueError(
+            'Request to slack returned an error %s, the response is:\n%s'
+            % (response.status_code, response.text)
+        )
 
 
 class DataRequestsUI(base.BaseController):
@@ -191,27 +201,23 @@ class DataRequestsUI(base.BaseController):
                         'datarequest_description': result['description'],
                         'datarequest_url': datarequest_url,
                     }
-                    subject = base.render_jinja2('emails/notify_user_subject.txt',
+                    subject = base.render_jinja2('emails/notify_user_email_subject.txt',
                                                  extra_vars)
-                    subject = subject.split('\n')[0]
 
                     for user in users:
                         user_data = model.User.get(user['id'])
                         extra_vars['user_name'] = user_data.fullname
-                        body = base.render_jinja2('emails/notify_user_body.txt',
+                        body = base.render_jinja2('emails/notify_user_email_body.txt',
                                                   extra_vars)
                         mailer.mail_user(user_data, subject, body)
 
-                    slack_data = {'text': body, 'username': "monkey-bot"}
-                    response = requests.post(
-                        webhook_url, data=json.dumps(slack_data),
-                        headers={'Content-Type': 'application/json'}
-                    )
-                    if response.status_code != 200:
-                        raise ValueError(
-                            'Request to slack returned an error %s, the response is:\n%s'
-                            % (response.status_code, response.text)
-                        )
+                    # Org members are notified via slack when data request is created
+                    slack_data = {'text': base.render_jinja2('emails/slack_notify_request_body.txt',
+                                  extra_vars),
+                                  'username': config.get('slack.username'),
+                                  'channel': config.get('slack.channel')
+                                  }
+                    send_slack_message(slack_data)
                 tk.redirect_to(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='show', id=result['id']))
 
             except tk.ValidationError as e:
@@ -357,6 +363,20 @@ class DataRequestsUI(base.BaseController):
                 data_dict['id'] = id
 
                 tk.get_action(constants.DATAREQUEST_CLOSE)(context, data_dict)
+
+                # Org members are notified via slack when data request status changes
+                datarequest_url = config.get('ckan.site_url') + \
+                    '/datarequest/' + id
+                extra_vars = {
+                    'datarequest_title': c.datarequest['title'],
+                    'datarequest_url': datarequest_url,
+                }
+                slack_data = {'text': base.render_jinja2('emails/slack_notify_status_body.txt',
+                              extra_vars),
+                              'username': config.get('slack.username'),
+                              'channel': config.get('slack.channel')
+                              }
+                send_slack_message(slack_data)
                 base.redirect(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI',
                                               action='show', id=data_dict['id']))
             else:   # GET
@@ -403,6 +423,22 @@ class DataRequestsUI(base.BaseController):
                         flash_message = tk._('Comment has been published')
                     else:
                         flash_message = tk._('Comment has been updated')
+
+                    # Org members are notified via slack when new comment is added
+                    datarequest_url = config.get('ckan.site_url') + \
+                        '/datarequest/comment/' + id
+
+                    extra_vars = {
+                       'comment': comment_data_dict['comment'],
+                       'datarequest_title': c.datarequest['title'],
+                       'datarequest_url': datarequest_url
+                       }
+                    slack_data = {'text': base.render_jinja2('emails/slack_notify_comments_body.txt',
+                                  extra_vars),
+                                  'username': config.get('slack.username'),
+                                  'channel': config.get('slack.channel')
+                                  }
+                    send_slack_message(slack_data)
 
                     helpers.flash_notice(flash_message)
 
