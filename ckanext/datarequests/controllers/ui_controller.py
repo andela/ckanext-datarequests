@@ -441,6 +441,8 @@ class DataRequestsUI(base.BaseController):
                     send_slack_message(slack_data)
 
                     helpers.flash_notice(flash_message)
+                    base.redirect(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI',
+                                                  action='comment', id=id))
 
                     base.redirect(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI',
                                                   action='comment', id=id))
