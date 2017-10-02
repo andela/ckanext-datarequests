@@ -29,6 +29,7 @@ DATAREQUEST_COMMENT_LIST = 'datarequest_comment_list'
 DATAREQUEST_COMMENT_SHOW = 'datarequest_comment_show'
 DATAREQUEST_COMMENT_UPDATE = 'datarequest_comment_update'
 DATAREQUEST_COMMENT_DELETE = 'datarequest_comment_delete'
+DATAREQUEST_SEND_EMAIL_NOTIFICATION = 'datarequest_email_notification'
 NAME_MAX_LENGTH = 100
 DESCRIPTION_MAX_LENGTH = 1000
 COMMENT_MAX_LENGTH = DESCRIPTION_MAX_LENGTH
