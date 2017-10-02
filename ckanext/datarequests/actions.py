@@ -25,6 +25,10 @@ import cgi
 import db
 import logging
 import validator
+from ckan.common import config
+import ckan.model as model
+import ckan.lib.base as base
+import ckan.lib.mailer as mailer
 
 c = plugins.toolkit.c
 log = logging.getLogger(__name__)
@@ -117,6 +121,28 @@ def _dictize_comment(comment):
 def _undictize_comment_basic(comment, data_dict):
     comment.comment = cgi.escape(data_dict.get('comment', ''))
     comment.datarequest_id = data_dict.get('datarequest_id', '')
+
+
+def datarequest_email_notification(context, result):
+    datarequest_url = config.get('ckan.site_url') + '/datarequest/' + result['id']
+    users = result['organization']['users']
+    extra_vars = {
+        'site_title': config.get('ckan.site_title'),
+        'site_url': config.get('ckan.site_url'),
+        'datarequest_title': result['title'],
+        'datarequest_description': result['description'],
+        'datarequest_url': datarequest_url,
+    }
+    subject = base.render_jinja2('emails/notify_user_subject.txt',
+                                 extra_vars)
+
+    for user in users:
+        # Retrieve user data
+        user_data = model.User.get(user['id'])
+        extra_vars['user_fullname'] = user_data.fullname
+        body = base.render_jinja2('emails/notify_user_body.txt',
+                                  extra_vars)
+        mailer.mail_user(user_data, subject, body)
 
 
 def datarequest_create(context, data_dict):
