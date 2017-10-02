@@ -21,8 +21,6 @@ import logging
 
 import ckan.lib.base as base
 import ckan.model as model
-from ckan.common import config
-import ckan.lib.mailer as mailer
 import ckan.plugins as plugins
 import ckan.lib.helpers as helpers
 import ckanext.datarequests.constants as constants
@@ -178,26 +176,7 @@ class DataRequestsUI(base.BaseController):
                 result = tk.get_action(action)(context, data_dict)
                 if result['id']:
                     # Org members are notified via email when data request is created
-                    datarequest_url = config.get('ckan.site_url') + \
-                                      '/datarequest/' + result['id']
-                    users = result['organization']['users']
-                    extra_vars = {
-                        'site_title': config.get('ckan.site_title'),
-                        'site_url': config.get('ckan.site_url'),
-                        'datarequest_title': result['title'],
-                        'datarequest_description': result['description'],
-                        'datarequest_url': datarequest_url,
-                    }
-                    subject = base.render_jinja2('emails/notify_user_subject.txt',
-                                                 extra_vars)
-
-                    for user in users:
-                        # Retrieve user data
-                        user_data = model.User.get(user['id'])
-                        extra_vars['user_fullname'] = user_data.fullname
-                        body = base.render_jinja2('emails/notify_user_body.txt',
-                                                  extra_vars)
-                        mailer.mail_user(user_data, subject, body)
+                    tk.get_action(constants.DATAREQUEST_SEND_EMAIL_NOTIFICATION)(context, result)
                 tk.redirect_to(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='show', id=result['id']))
 
             except tk.ValidationError as e:
