@@ -80,7 +80,8 @@ class DataRequestsPlugin(p.SingletonPlugin):
             constants.DATAREQUEST_UPDATE: actions.datarequest_update,
             constants.DATAREQUEST_INDEX: actions.datarequest_index,
             constants.DATAREQUEST_DELETE: actions.datarequest_delete,
-            constants.DATAREQUEST_CLOSE: actions.datarequest_close
+            constants.DATAREQUEST_CLOSE: actions.datarequest_close,
+            constants.DATAREQUEST_SEND_EMAIL_NOTIFICATION: actions.datarequest_email_notification,
         }
 
         if self.comments_enabled:
