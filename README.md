@@ -39,13 +39,24 @@ In addition, you should note that the parameters will be checked and an exceptio
 A dict with the data request (`id`, `user_id`, `title`, `description`,`organization_id`, `open_time`, `accepted_dataset`, `close_time`, `closed`).
 
 
+#### `datarequest_email_notification(context, data_dict)`
+Action to send organization members email notifications when a new data request is created. To send email notifications, [SMTP configurations](http://docs.ckan.org/en/latest/maintaining/email-notifications.html) have to be set.
+
+#### Parameters (included in `data_dict`):
+* **`id`** (string): the ID of the data request
+* **`title`** (string): the title of the data request
+* **`description`** (string): a brief description for the data request
+* **`organization_users`** (dictionary): the organization members who will be notified when a data request
+is created.
+
+
 #### `datarequest_show(context, data_dict)`
 Action to retrieve the information of a data request. The only required parameter is the `id` of the data request. A `NotFound` exception will be risen if the `id` is not found.
 
 Access rights will be checked before returning the information and an exception will be risen (`NotAuthorized`) if the user is not authorized.
 
 ##### Parameters (included in `data_dict`):
-* **`id`** (string): the ID of the datarequest to be returned.
+* **`id`** (string): the ID of the data request to be returned.
 
 ##### Returns:
 A dict with the data request (`id`, `user_id`, `title`, `description`,`organization_id`, `open_time`, `accepted_dataset`, `close_time`, `closed`).
@@ -213,7 +224,7 @@ Once the translation files (`po`) have been updated, compile them by running:
 python setup.py compile_catalog
 ```
 
-This will generate the required `mo` file. Once this file has been generated, commit your changes and create a Pull Request (to the `develop` branch). 
+This will generate the required `mo` file. Once this file has been generated, commit your changes and create a Pull Request (to the `develop` branch).
 
 ## Tests
 
@@ -239,4 +250,3 @@ python setup.py nosetests
 ### v0.3.3
 
 * New: German Translation (thanks to @kvlahrosch)
-
