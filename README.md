@@ -1,10 +1,9 @@
-CKAN Data Requests [![Build Status](https://build.conwet.fi.upm.es/jenkins/buildStatus/icon?job=ckan_datarequests)](https://build.conwet.fi.upm.es/jenkins/job/ckan_datarequests/)
-=====================
+# CKAN Data Requests [![Build Status](https://travis-ci.org/conwetlab/ckanext-datarequests.svg?branch=develop)](https://travis-ci.org/conwetlab/ckanext-datarequests) [![Coverage Status](https://coveralls.io/repos/github/conwetlab/ckanext-datarequests/badge.svg?branch=develop)](https://coveralls.io/github/conwetlab/ckanext-datarequests?branch=develop)
 
 CKAN extension that allows users to ask for datasets that are not already published in the CKAN instance. In this way we can set up a Data Market, not only with data supplies but also with data demands.
 
-How it works
-------------
+## How it works
+
 You have two ways for creating, updating, deleting, viewing and closing a datarequest: you can use the graphical interface or the programatic API.
 
 ### User Interface
@@ -14,10 +13,10 @@ If you prefer to use the graphical interface, you should click on the "Data Requ
 * **Description**: a long description for your data request. You should include as much details as you can in order to allow others to understand you needs and upload a dataset that fulfil your requeriments.
 * **Organization**: in some cases, you want to ask specific data to an specific organization. If you are in such situation, you should complete this field.
 
-Once that you have created your data request, you can view it by clicking on the link provided when you created it. When you are the owner of a data request, you will also be able of:
-* **Closing the data request** if you consider that there is a new dataset that fulfil your needs
-* **Updating the data request** if you can to add/remove some information
-* **Deleting the data request** if you do not want it to be available any more
+Once that you have created your data request, you can view it by clicking on the link provided when you created it. When you are the owner of a data request, you will also be able to:
+* **Close the data request** if you consider that there is a new dataset that fulfil your needs
+* **Update the data request** if you can to add/remove some information
+* **Delete the data request** if you do not want it to be available any more
 
 ### API
 On the other hand, you can also use the API. To access this API, you should POST the following URL (as you do for other actions):
@@ -156,9 +155,9 @@ Action to delete a comment of a data request. Access rights will be checked befo
 ##### Returns:
 A dict with the data request comment (`id`, `user_id`, `datarequest_id`, `time` and `comment`)
 
-Installation
-------------
-Install this extension in your CKAN instance is as easy as intall any other CKAN extension.
+## Installation
+
+Install this extension in your CKAN instance is as easy as install any other CKAN extension.
 
 * Activate your virtual environment
 ```
@@ -193,9 +192,9 @@ sudo service apache2 restart
 ```
 * That's All!
 
-Translations
-------------
-Help us to translate this extension so everyone can create data requests. Currently, the extension is translated to English and Spanish. If you want to contribute with your translation, the first step is to close this repo. Then, create the locale for your translation by executing:
+## Translations
+
+Help us to translate this extension so everyone can create data requests. Currently, the extension is translated to English, Spanish, German and Brazilian Portuguese. If you want to contribute with your translation, the first step is to clone this repo and move to the `develop` branch. Then, create the locale for your translation by executing:
 
 ```
 python setup.py init_catalog -l <YOUR_LOCALE>
@@ -214,12 +213,30 @@ Once the translation files (`po`) have been updated, compile them by running:
 python setup.py compile_catalog
 ```
 
-This will generate the required `mo` file. Once this file has been generated, commit your changes and create a Pull Request. 
+This will generate the required `mo` file. Once this file has been generated, commit your changes and create a Pull Request (to the `develop` branch). 
 
-Tests
------
+## Tests
+
 This sofware contains a set of test to detect errors and failures. You can run this tests by running the following command (this command will generate coverage reports):
 ```
 python setup.py nosetests
 ```
 **Note:** The `test.ini` file contains a link to the CKAN `test-core.ini` file. You will need to change that link to the real path of the file in your system (generally `/usr/lib/ckan/default/src/ckan/test-core.ini`).
+
+**Note 2:** When creating a PR that includes code changes, please, ensure your new code is tested. No PR will be merged until the Travis CI system marks it as valid.
+
+## Changelog
+
+### v0.4.1
+
+* New: Brazilian Portuguese (thanks to @allysonbarros)
+
+### v0.4.0
+
+* New: Move CI to Travis
+* New: Compatibility with CKAN 2.7 (controller adapted by @owl17)
+
+### v0.3.3
+
+* New: German Translation (thanks to @kvlahrosch)
+
