@@ -35,18 +35,17 @@ text-align: right;
 }
 
 .vote-section-content {
-padding-left: 5px;
-padding-right: 5px;
-text-align: center;
+  padding-left: 5px;
+  padding-right: 5px;
+  text-align: center;
+  vertical-align: top;
 }
 
 #datarequest_vote_section {
 width: 5%;
-float: left;
 }
 
 .vote-section {
-padding: 5px;
 display:inline-block;
 }
 
@@ -60,18 +59,16 @@ pointer-events: none;
 opacity: .5;
 }
 
-#datarequest_additional_info {
-width: 90%;
-}
-
-.vote-section-content {
-  padding-left: 5px;
-  padding-right: 5px;
-  text-align: center;
-}
-
 .vote-section {
   display:inline-block;
+  width: 5%;
+  float: left;
+}
+
+.main-info {
+  width: 93%;
+  float: right;
+  height: 100%;
 }
 
 .rating-list {
@@ -84,18 +81,9 @@ width: 90%;
   opacity: .5;
 }
 
-#datarequest_additional_info {
-  width: 90%;
-  float: right;
-}
-
 .dataset-content {
-  width: 90%;
+  width: 93%;
   float: right;
-}
-
-.additional-info-container {
-  padding-bottom: 40px;
 }
 
 .title-separator {
