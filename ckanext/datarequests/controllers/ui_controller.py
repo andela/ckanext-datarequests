@@ -21,6 +21,8 @@ import logging
 
 import ckan.lib.base as base
 import ckan.model as model
+from ckan.common import config
+import ckan.lib.mailer as mailer
 import ckan.plugins as plugins
 import ckan.lib.helpers as helpers
 import ckanext.datarequests.constants as constants

@@ -1,54 +1,7 @@
 {% set rating = c.datarequest.get('rating') %}
 {% set user_option = c.datarequest.get('user_option') %}
-<div>
 
-  <div class="vote-section" id="datarequest_vote_section" data-datarequest-id="{{ c.datarequest.get('id') }}" data-user-option="{{ user_option }}">
-    <h3> Rating </h3>
-    {% if user_option == True %}
-
-      <div class= "vote-section-content up_vote">
-        <i class= "icon-caret-up icon-3x" style="color: orange" title="Up vote request" id="arrow_up"></i>
-      </div>
-
-      <div class="vote-section-content rating">
-        <div class="vote-section-content" id="rating"> {{ rating }} </div>
-      </div>
-
-      <div class="vote-section-content down_vote">
-        <i class= "icon-caret-down icon-3x disabled" title="Down vote request" id="arrow_down"></i>
-      </div>      
-
-    {% elif user_option == False %}
-
-      <div class= "vote-section-content up_vote">
-        <i class= "icon-caret-up icon-3x disabled" title="Up vote request" id="arrow_up"></i>
-      </div>
-
-      <div class="vote-section-content rating">
-        <div class="vote-section-content" id="rating"> {{ rating }} </div>
-      </div>
-
-      <div class="vote-section-content down_vote">
-        <i class= "icon-caret-down icon-3x" style="color: orange" title="Down vote request" id="arrow_down"></i>
-      </div>
-
-    {% else %}
-
-      
-      <div class= "vote-section-content up_vote">
-        <i class= "icon-caret-up icon-3x" title="Up vote request" id="arrow_up"></i>
-      </div>
-
-      <div class="vote-section-content rating">
-        <div class="vote-section-content" id="rating"> {{ rating }} </p>
-      </div>
-
-      <div class="vote-section-content down_vote">
-        <i class= "icon-caret-down icon-3x" title="Down vote request" id="arrow_down"></i>
-      </div>
-
-    {% endif %}
-  </div>
+<!-- <div class="additional-info-container"> -->
 
   <div id="datarequest_additional_info">
     <section class="additional-info">
@@ -89,5 +42,4 @@
         </table>
       </section>
     </div>
-
-</div>
+<!-- </div> -->

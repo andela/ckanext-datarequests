@@ -5,18 +5,7 @@
 
 <li class="{{ item_class or "dataset-item" }}">
   {% block package_item_content %}
-
-    <!-- Votes section -->
-    <div id="datarequest_vote_section" data-datarequest-id="{{ datarequest.id }}">
-        <div id="datarequest_id" hidden>{{ datarequest.id }}</div>
-
-        <div class="vote-section-content rating-list">
-          <div class="vote-section-content"> {{ datarequest.rating }} </div>
-          <div> votes </div>
-        </div>
-  
-      </div>
-      <!-- End of votes section -->
+  <div>
 
     <div class="dataset-content">
       <h3 class="dataset-heading">
@@ -35,13 +24,26 @@
         <div>{{ description }}</div>
       {% endif %}
       <div class="datarequest-properties">
-        {% if h.show_comments_tab() %}
-          <a href="{{ h.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='comment', id=datarequest.get('id','')) }}" class="label"><i class="icon-comment fa fa-comment"></i> {{ h.get_comments_number(datarequest.get('id', '')) }}</span></a>
-        {% endif %}
-        <div class="divider"/>
+
         <span class="date-datarequests">{{ h.time_ago_from_timestamp(datarequest.open_time) }}</span>
       </div>
     </div>
+
+    <!-- Votes section -->
+    <div id="datarequest_vote_section" data-datarequest-id="{{ datarequest.id }}">
+        <div id="datarequest_id" hidden>{{ datarequest.id }}</div>
+
+        <div class="vote-section-content rating-list">
+          <div class="vote-section-content"> {{ datarequest.rating }} </div>
+          <div> votes </div>
+          {% if h.show_comments_tab() %}
+            <a href="{{ h.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='comment', id=datarequest.get('id','')) }}" class="label"><i class="icon-comment"></i> {{ h.get_comments_number(datarequest.get('id', '')) }}</span></a>
+          {% endif %}
+        </div>
+  
+    </div>
+    <!-- End of votes section -->    
+  </div>
 
   {% endblock %}
 </li>

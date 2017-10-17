@@ -35,18 +35,17 @@ text-align: right;
 }
 
 .vote-section-content {
-padding-left: 5px;
-padding-right: 5px;
-text-align: center;
+  padding-left: 5px;
+  padding-right: 5px;
+  text-align: center;
+  vertical-align: top;
 }
 
 #datarequest_vote_section {
 width: 5%;
-float: right;
 }
 
 .vote-section {
-padding: 5px;
 display:inline-block;
 }
 
@@ -60,12 +59,35 @@ pointer-events: none;
 opacity: .5;
 }
 
-#datarequest_additional_info {
-width: 90%;
+.vote-section {
+  display:inline-block;
+  width: 5%;
+  float: left;
+}
+
+.main-info {
+  width: 93%;
+  float: right;
+  height: 100%;
+}
+
+.rating-list {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: .5;
 }
 
 .dataset-content {
-width: 95%;
+  width: 93%;
+  float: right;
+}
+
+.title-separator {
+  border-color: #cccccc;
 }
 
 /*****************************************
@@ -157,6 +179,6 @@ font-size: 14px
 }
 
 .comment-new {
-border-top: 2px solid #f3f3f3;
-background-color: #fff;
+  border-top: 2px solid #f3f3f3;
+  background-color: #fff;
 }
