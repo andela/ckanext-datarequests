@@ -157,6 +157,12 @@ class DataRequestsPlugin(p.SingletonPlugin):
                   action='organization_datarequests', conditions=dict(method=['GET']),
                   ckan_icon='question-sign')
 
+        # Notify
+        m.connect('organization_datarequests', '/organization/%s/{id}' % constants.NOTIFY_MAIN_PATH,
+                  controller='ckanext.notify.controllers.ui_controller:DataRequestsNotifyUI',
+                  action='notify', conditions=dict(method=['GET']),
+                  ckan_icon='question-sign')
+
         # Data Request that belongs to an user
         m.connect('user_datarequests', '/user/%s/{id}' % constants.DATAREQUESTS_MAIN_PATH,
                   controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI',

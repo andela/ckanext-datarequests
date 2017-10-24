@@ -18,6 +18,7 @@
 # along with CKAN Data Requests Extension. If not, see <http://www.gnu.org/licenses/>.
 
 DATAREQUESTS_MAIN_PATH = 'datarequest'
+NOTIFY_MAIN_PATH = 'notify'
 DATAREQUEST_CREATE = 'datarequest_create'
 DATAREQUEST_SHOW = 'datarequest_show'
 DATAREQUEST_UPDATE = 'datarequest_update'
