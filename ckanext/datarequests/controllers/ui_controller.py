@@ -191,33 +191,17 @@ class DataRequestsUI(base.BaseController):
             try:
                 result = tk.get_action(action)(context, data_dict)
                 if result['id']:
-                    datarequest_url = config.get('ckan.site_url') + \
-                                      '/datarequest/' + result['id']
-                    users = result['organization']['users']
-                    extra_vars = {
-                        'site_title': config.get('ckan.site_title'),
-                        'site_url': config.get('ckan.site_url'),
-                        'datarequest_title': result['title'],
-                        'datarequest_description': result['description'],
-                        'datarequest_url': datarequest_url,
-                    }
-                    subject = base.render_jinja2('emails/notify_user_email_subject.txt',
-                                                 extra_vars)
+                    # Add this code before the first function in ckanext-datarequest ui_controller
+                    ckan_extensions = config.get('ckan.plugins').split()
+                    if 'notify' in ckan_extensions:
+                        from ckanext.notify.controllers.ui_controller import DataRequestsNotifyUI
+                        ckanext_notify = DataRequestsNotifyUI()
+                        ckanext_notify.send_slack_notification(result)
 
-                    for user in users:
-                        user_data = model.User.get(user['id'])
-                        extra_vars['user_name'] = user_data.fullname
-                        body = base.render_jinja2('emails/notify_user_email_body.txt',
-                                                  extra_vars)
-                        mailer.mail_user(user_data, subject, body)
+                    # Add this code wherever you need to call notify in ckanext-datarequest ui_controller (edit where necessary)
+                    # if 'notify' in ckan_extensions:
+                    #     ckanext_notify.send_slack_notification(data)
 
-                    # Org members are notified via slack when data request is created
-                    slack_data = {'text': base.render_jinja2('emails/slack_notify_request_body.txt',
-                                  extra_vars),
-                                  'username': config.get('slack.username'),
-                                  'channel': config.get('slack.channel')
-                                  }
-                    send_slack_message(slack_data)
                 tk.redirect_to(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='show', id=result['id']))
 
             except tk.ValidationError as e:
@@ -425,22 +409,25 @@ class DataRequestsUI(base.BaseController):
                         flash_message = tk._('Comment has been updated')
 
                     # Org members are notified via slack when new comment is added
-                    datarequest_url = config.get('ckan.site_url') + \
-                        '/datarequest/comment/' + id
-
-                    extra_vars = {
-                       'comment': comment_data_dict['comment'],
-                       'datarequest_title': c.datarequest['title'],
-                       'datarequest_url': datarequest_url
-                       }
-                    slack_data = {'text': base.render_jinja2('emails/slack_notify_comments_body.txt',
-                                  extra_vars),
-                                  'username': config.get('slack.username'),
-                                  'channel': config.get('slack.channel')
-                                  }
-                    send_slack_message(slack_data)
+                    # datarequest_url = config.get('ckan.site_url') + \
+                    #     '/datarequest/comment/' + id
+                    #
+                    # extra_vars = {
+                    #    'comment': comment_data_dict['comment'],
+                    #    'datarequest_title': c.datarequest['title'],
+                    #    'datarequest_url': datarequest_url
+                    #    }
+                    # slack_data = {'text': base.render_jinja2('emails/slack_notify_comments_body.txt',
+                    #               extra_vars),
+                    #               'username': config.get('slack.username'),
+                    #               'channel': config.get('slack.channel')
+                    #               }
+                    # send_slack_message(slack_data)
 
                     helpers.flash_notice(flash_message)
+
+                    tk.redirect_to(helpers.url_for(controller='ckanext.notify.controllers.ui_controller:DataRequestsNotifyUI', action='notify', result=result))
+
                     base.redirect(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI',
                                                   action='comment', id=id))
 
