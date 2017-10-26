@@ -24,7 +24,6 @@ import requests
 import ckan.lib.base as base
 import ckan.model as model
 from ckan.common import config
-import ckan.lib.mailer as mailer
 import ckan.plugins as plugins
 import ckan.lib.helpers as helpers
 import ckanext.datarequests.constants as constants
@@ -79,16 +78,12 @@ def user_datarequest_url(params, id):
     return url_with_params(url, params)
 
 
-def send_slack_message(slack_data):
-    response = requests.post(
-        config.get('slack.webhook_url'), data=json.dumps(slack_data),
-        headers={'Content-Type': 'application/json'}
-    )
-    if response.status_code != 200:
-        raise ValueError(
-            'Request to slack returned an error %s, the response is:\n%s'
-            % (response.status_code, response.text)
-        )
+def check_notify_plugin():
+    ckan_extensions = config.get('ckan.plugins').split()
+    if 'notify' in ckan_extensions:
+        from ckanext.notify.controllers.ui_controller import DataRequestsNotifyUI
+        ckanext_notify = DataRequestsNotifyUI()
+        return ckanext_notify
 
 
 class DataRequestsUI(base.BaseController):
@@ -193,11 +188,7 @@ class DataRequestsUI(base.BaseController):
                 if result['id']:
                     result['body'] = 'emails/slack_notify_request_body.txt'
                     result['datarequest_url'] = config.get('ckan.site_url') + '/datarequest/' + result['id']
-                    ckan_extensions = config.get('ckan.plugins').split()
-                    if 'notify' in ckan_extensions:
-                        from ckanext.notify.controllers.ui_controller import DataRequestsNotifyUI
-                        ckanext_notify = DataRequestsNotifyUI()
-                        ckanext_notify.send_slack_notification(result)
+                    check_notify_plugin().send_slack_notification(result)
 
                 tk.redirect_to(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='show', id=result['id']))
 
@@ -349,11 +340,7 @@ class DataRequestsUI(base.BaseController):
                 result = c.datarequest
                 result['body'] = 'emails/slack_notify_status_body.txt'
                 result['datarequest_url'] = config.get('ckan.site_url') + '/datarequest/' + id
-                ckan_extensions = config.get('ckan.plugins').split()
-                if 'notify' in ckan_extensions:
-                    from ckanext.notify.controllers.ui_controller import DataRequestsNotifyUI
-                    ckanext_notify = DataRequestsNotifyUI()
-                    ckanext_notify.send_slack_notification(result)
+                check_notify_plugin().send_slack_notification(result)
 
                 tk.redirect_to(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI',
                                                action='show', id=data_dict['id']))
@@ -407,11 +394,7 @@ class DataRequestsUI(base.BaseController):
                     result['body'] = 'emails/slack_notify_comments_body.txt'
                     result['datarequest_url'] = config.get('ckan.site_url') + \
                         '/datarequest/comment/' + id
-                    ckan_extensions = config.get('ckan.plugins').split()
-                    if 'notify' in ckan_extensions:
-                        from ckanext.notify.controllers.ui_controller import DataRequestsNotifyUI
-                        ckanext_notify = DataRequestsNotifyUI()
-                        ckanext_notify.send_slack_notification(result)
+                    check_notify_plugin().send_slack_notification(result)
 
                     helpers.flash_notice(flash_message)
 
