@@ -185,10 +185,12 @@ class DataRequestsUI(base.BaseController):
 
             try:
                 result = tk.get_action(action)(context, data_dict)
-                if result['id']:
-                    result['body'] = 'emails/slack_notify_request_body.txt'
-                    result['datarequest_url'] = config.get('ckan.site_url') + '/datarequest/' + result['id']
-                    check_notify_plugin().send_slack_notification(result)
+                if result['id'] and action == constants.DATAREQUEST_CREATE:
+                    result['datarequest_url'] = config.get('ckan.site_url') + \
+                                                '{0}{1}{0}'.format('/', constants.DATAREQUESTS_MAIN_PATH) + result['id']
+                    check_notify_plugin().send_slack_notification(action, result)
+
+
 
                 tk.redirect_to(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='show', id=result['id']))
 
@@ -338,9 +340,9 @@ class DataRequestsUI(base.BaseController):
 
                 # Org members are notified via slack when data request status changes
                 result = c.datarequest
-                result['body'] = 'emails/slack_notify_status_body.txt'
-                result['datarequest_url'] = config.get('ckan.site_url') + '/datarequest/' + id
-                check_notify_plugin().send_slack_notification(result)
+                result['datarequest_url'] = config.get('ckan.site_url') + \
+                    '{0}{1}{0}'.format('/', constants.DATAREQUESTS_MAIN_PATH) + id
+                check_notify_plugin().send_slack_notification(constants.DATAREQUEST_CLOSE, result)
 
                 tk.redirect_to(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI',
                                                action='show', id=data_dict['id']))
@@ -390,15 +392,13 @@ class DataRequestsUI(base.BaseController):
                         flash_message = tk._('Comment has been updated')
 
                     # Org members are notified via slack when new comment is added
-                    result = c.datarequest
-                    result['body'] = 'emails/slack_notify_comments_body.txt'
-                    result['datarequest_url'] = config.get('ckan.site_url') + \
-                        '/datarequest/comment/' + id
-                    check_notify_plugin().send_slack_notification(result)
+                    if action == constants.DATAREQUEST_COMMENT:
+                        result = c.datarequest
+                        result['datarequest_url'] = config.get('ckan.site_url') + \
+                            '{0}{1}{0}{2}{0}'.format('/', constants.DATAREQUESTS_MAIN_PATH, 'comment') + id
+                        check_notify_plugin().send_slack_notification(action, result)
 
                     helpers.flash_notice(flash_message)
-
-                    tk.redirect_to(helpers.url_for(controller='ckanext.notify.controllers.ui_controller:DataRequestsNotifyUI', action='notify', result=result))
 
                     base.redirect(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI',
                                                   action='comment', id=id))
