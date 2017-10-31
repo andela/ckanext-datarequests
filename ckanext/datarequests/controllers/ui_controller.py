@@ -29,15 +29,32 @@ import ckanext.datarequests.constants as constants
 import functools
 import re
 
+from multiprocessing import Process, Queue
 from ckan.common import request
 from urllib import urlencode
 
 
 _link = re.compile(r'(?:(https?://)|(www\.))(\S+\b/?)([!"#$%&\'()*+,\-./:;<=>?@[\\\]^_`{|}~]*)(\s|$)', re.I)
 
+ckan_extensions = config.get('ckan.plugins').split()
 log = logging.getLogger(__name__)
 tk = plugins.toolkit
 c = tk.c
+
+
+def notify(queue):
+    template, datarequest = queue.get()
+    ckanext_notify.send_slack_notification(template, datarequest)
+    ckanext_notify.send_email_notification(template, datarequest)
+
+
+if 'notify' in ckan_extensions:
+    from ckanext.notify.controllers.ui_controller import DataRequestsNotifyUI
+    ckanext_notify = DataRequestsNotifyUI()
+    notify_tasks = Queue()
+    notify_process = Process(target=notify, args=(notify_tasks,))
+    notify_process.daemon = True
+    notify_process.start()
 
 
 def _get_errors_summary(errors):
@@ -176,6 +193,13 @@ class DataRequestsUI(base.BaseController):
 
             try:
                 result = tk.get_action(action)(context, data_dict)
+
+                # Organization is notified when new data request is created
+                if 'notify' in ckan_extensions and action == constants.DATAREQUEST_CREATE:
+                    result['datarequest_url'] = config.get('ckan.site_url') + \
+                                                '{0}{1}{0}'.format('/', constants.DATAREQUESTS_MAIN_PATH) + result['id']
+                    notify_tasks.put((action, result))
+
                 tk.redirect_to(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='show', id=result['id']))
 
             except tk.ValidationError as e:
@@ -321,6 +345,13 @@ class DataRequestsUI(base.BaseController):
                 data_dict['id'] = id
 
                 tk.get_action(constants.DATAREQUEST_CLOSE)(context, data_dict)
+
+                # Organization is notified when data request status changes
+                if 'notify' in ckan_extensions:
+                    c.datarequest['datarequest_url'] = config.get('ckan.site_url') + \
+                                                '{0}{1}{0}'.format('/', constants.DATAREQUESTS_MAIN_PATH) + id
+                    notify_tasks.put((constants.DATAREQUEST_CLOSE, c.datarequest))
+
                 tk.redirect_to(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='show', id=data_dict['id']))
             else:   # GET
                 return _return_page()
@@ -366,6 +397,12 @@ class DataRequestsUI(base.BaseController):
                         flash_message = tk._('Comment has been published')
                     else:
                         flash_message = tk._('Comment has been updated')
+
+                    # Organization is notified when new comment is added
+                    if 'notify' in ckan_extensions and action == constants.DATAREQUEST_COMMENT:
+                        c.datarequest['datarequest_url'] = config.get('ckan.site_url') + \
+                                        '{0}{1}{0}{2}{0}'.format('/', constants.DATAREQUESTS_MAIN_PATH, 'comment') + id
+                        notify_tasks.put((action, c.datarequest))
 
                     helpers.flash_notice(flash_message)
                     base.redirect(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', 
