@@ -41,18 +41,18 @@ log = logging.getLogger(__name__)
 tk = plugins.toolkit
 c = tk.c
 
+if 'notify' in ckan_extensions:
+    from ckanext.notify.controllers.ui_controller import DataRequestsNotifyUI
+    ckanext_notify = DataRequestsNotifyUI()
 
-def notify(queue):
-    template, datarequest = queue.get()
+
+def notify(template, datarequest):
     ckanext_notify.send_slack_notification(template, datarequest)
     ckanext_notify.send_email_notification(template, datarequest)
 
 
-if 'notify' in ckan_extensions:
-    from ckanext.notify.controllers.ui_controller import DataRequestsNotifyUI
-    ckanext_notify = DataRequestsNotifyUI()
-    notify_tasks = Queue()
-    notify_process = Process(target=notify, args=(notify_tasks,))
+def notify_in_background(template, datarequest):
+    notify_process = Process(target=notify, args=(template, datarequest,))
     notify_process.daemon = True
     notify_process.start()
 
@@ -198,7 +198,7 @@ class DataRequestsUI(base.BaseController):
                 if 'notify' in ckan_extensions and action == constants.DATAREQUEST_CREATE:
                     result['datarequest_url'] = config.get('ckan.site_url') + \
                                                 '{0}{1}{0}'.format('/', constants.DATAREQUESTS_MAIN_PATH) + result['id']
-                    notify_tasks.put((action, result))
+                    notify_in_background(action, result)
 
                 tk.redirect_to(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='show', id=result['id']))
 
@@ -350,7 +350,7 @@ class DataRequestsUI(base.BaseController):
                 if 'notify' in ckan_extensions:
                     c.datarequest['datarequest_url'] = config.get('ckan.site_url') + \
                                                 '{0}{1}{0}'.format('/', constants.DATAREQUESTS_MAIN_PATH) + id
-                    notify_tasks.put((constants.DATAREQUEST_CLOSE, c.datarequest))
+                    notify_in_background(constants.DATAREQUEST_CLOSE, c.datarequest)
 
                 tk.redirect_to(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', action='show', id=data_dict['id']))
             else:   # GET
@@ -402,7 +402,7 @@ class DataRequestsUI(base.BaseController):
                     if 'notify' in ckan_extensions and action == constants.DATAREQUEST_COMMENT:
                         c.datarequest['datarequest_url'] = config.get('ckan.site_url') + \
                                         '{0}{1}{0}{2}{0}'.format('/', constants.DATAREQUESTS_MAIN_PATH, 'comment') + id
-                        notify_tasks.put((action, c.datarequest))
+                        notify_in_background(action, c.datarequest)
 
                     helpers.flash_notice(flash_message)
                     base.redirect(helpers.url_for(controller='ckanext.datarequests.controllers.ui_controller:DataRequestsUI', 
