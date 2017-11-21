@@ -47,9 +47,13 @@ if 'notify' in ckan_extensions:
 
 
 def notify(template, datarequest):
-    ckanext_notify.send_slack_notification(template, datarequest)
-    ckanext_notify.send_email_notification(template, datarequest)
-
+    if ckanext_notify.org_notification_preference == 'Email Only':
+        ckanext_notify.send_email_notification(template, datarequest)
+    elif ckanext_notify.org_notification_preference == 'Email Only':
+        ckanext_notify.send_slack_notification(template, datarequest)
+    else:
+        ckanext_notify.send_slack_notification(template, datarequest)
+        ckanext_notify.send_email_notification(template, datarequest)
 
 def notify_in_background(template, datarequest):
     notify_process = Process(target=notify, args=(template, datarequest,))
